@@ -5,7 +5,7 @@ import (
 	"goendpoint/utils"
 	"goendpoint/models"
 	"io/ioutil"
-	"fmt"
+	"goendpoint/services"
 )
 
 func HandleConsoleInput() models.Response {
@@ -26,7 +26,7 @@ func HandleConsoleInput() models.Response {
 		return models.Response{Status: 400, Msg: err.Error()}
 	}
 
-
+	services.CreateSchema(fileFlag, jsonAsKeyValue)
 
 	return models.Response{Status: 200, Msg: "Success!"}
 }
