@@ -1,6 +1,8 @@
 package utils
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 func JsonToMap(s []byte) (map[string]interface{}, error) {
 	var raw map[string]interface{}

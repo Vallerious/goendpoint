@@ -6,6 +6,7 @@ import (
 	"goendpoint/models"
 	"io/ioutil"
 	"goendpoint/services"
+	"strings"
 )
 
 func HandleConsoleInput() models.Response {
@@ -26,7 +27,13 @@ func HandleConsoleInput() models.Response {
 		return models.Response{Status: 400, Msg: err.Error()}
 	}
 
-	services.CreateSchema(fileFlag, jsonAsKeyValue)
+	e := services.CreateSchema(fileFlag, jsonAsKeyValue)
 
-	return models.Response{Status: 200, Msg: "Success!"}
+	if e != nil {
+		return models.Response{Status: 500, Msg: err.Error()}
+	}
+
+	resourceName := fileFlag[:strings.LastIndex(fileFlag, ".")]
+
+	return models.Response{Status: 200, Msg: resourceName}
 }

@@ -2,8 +2,15 @@ package main
 
 import (
     "goendpoint/controllers"
+    "net/http"
+    "log"
 )
 
 func main() {
-    controllers.HandleConsoleInput()
+    res := controllers.HandleConsoleInput()
+
+    controllers.AttachHandlers(res.Msg)
+
+    log.Println("Server started...")
+    http.ListenAndServe(":3000", nil)
 }
