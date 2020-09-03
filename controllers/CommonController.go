@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"goendpoint/services"
 	"net/http"
 	"io/ioutil"
@@ -28,7 +29,22 @@ func AttachHandlers(resource string) {
 			return
 		}
 
-		r, saveToDiskErr := services.Add(resource, body)
+		var incomingData map[string]interface{}
+		unmarshallErr := json.Unmarshal(body, &incomingData)
+
+		if unmarshallErr != nil {
+			http.Error(resp, unmarshallErr.Error(), http.StatusBadRequest)
+			return
+		}
+
+		validationErr := services.ValidateSchema(resource, incomingData)
+
+		if validationErr != nil {
+			http.Error(resp, validationErr.Error(), http.StatusBadRequest)
+			return
+		}
+
+		r, saveToDiskErr := services.Add(resource, incomingData)
 
 		if saveToDiskErr != nil {
 			http.Error(resp, saveToDiskErr.Error(), http.StatusInternalServerError)

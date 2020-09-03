@@ -9,7 +9,7 @@ import (
 )
 
 func GetAll(resource string) ([]byte, error) {
-	data, err := loadResourceFile(resource)
+	data, err := LoadResourceFile(resource)
 
 	if err != nil {
 		return []byte(""), err
@@ -26,23 +26,15 @@ func GetAll(resource string) ([]byte, error) {
 	return jsonStr, nil
 }
 
-func Add(resource string, data []byte) (r []byte, e error) {
-	var incomingData interface{}
-	err := json.Unmarshal(data, &incomingData)
-
-	if err != nil {
-		e = err
-		return
-	}
-
-	resourceSchema, resourceSchemaLoadErr := loadSchema(resource)
+func Add(resource string, data map[string]interface{}) (r []byte, e error) {
+	resourceSchema, resourceSchemaLoadErr := LoadSchema(resource)
 
 	if resourceSchemaLoadErr != nil {
 		e = resourceSchemaLoadErr
 		return
 	}
 
-	resourceSchema.Data = append(resourceSchema.Data, incomingData)
+	resourceSchema.Data = append(resourceSchema.Data, data)
 
 	storeSchemaErr := storeSchema(resource, &resourceSchema)
 
@@ -51,13 +43,13 @@ func Add(resource string, data []byte) (r []byte, e error) {
 		return
 	}
 
-	incomingDataStr, _ := json.Marshal(incomingData)
+	incomingDataStr, _ := json.Marshal(data)
 
 	r = incomingDataStr
 	return
 }
 
-func loadResourceFile(resource string) (s []byte, e error) {
+func LoadResourceFile(resource string) (s []byte, e error) {
 	s, e = ioutil.ReadFile(filepath.Join("db", resource + ".json"))
 	return
 }
@@ -67,8 +59,8 @@ func persist(resource string, data []byte) (e error) {
 	return
 }
 
-func loadSchema(resource string) (s models.Schema, e error) {
-	data, loadErr := loadResourceFile(resource)
+func LoadSchema(resource string) (s models.Schema, e error) {
+	data, loadErr := LoadResourceFile(resource)
 
 	if loadErr != nil {
 		e = loadErr

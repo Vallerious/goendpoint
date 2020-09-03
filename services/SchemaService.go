@@ -32,3 +32,19 @@ func CreateSchema(schemaName string, js map[string]interface{}) error {
 
 	return nil
 }
+
+func ValidateSchema(schemaName string, incomingData map[string]interface{}) error {
+	schema, err := LoadSchema(schemaName)
+
+	if err != nil {
+		return err
+	}
+
+	for key, _ := range schema.Headers {
+		if incomingData[key] == nil {
+			return errors.New(key + " is a required property")
+		}
+	}
+
+	return nil
+}
