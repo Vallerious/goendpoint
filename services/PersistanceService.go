@@ -35,16 +35,7 @@ func Add(resource string, data []byte) (r []byte, e error) {
 		return
 	}
 
-	data, loadErr := loadResourceFile(resource)
-
-	if loadErr != nil {
-		e = loadErr
-		return
-	}
-
-	var resourceSchema models.Schema
-
-	resourceSchemaLoadErr := json.Unmarshal(data, &resourceSchema)
+	resourceSchema, resourceSchemaLoadErr := loadSchema(resource)
 
 	if resourceSchemaLoadErr != nil {
 		e = resourceSchemaLoadErr
@@ -53,17 +44,10 @@ func Add(resource string, data []byte) (r []byte, e error) {
 
 	resourceSchema.Data = append(resourceSchema.Data, incomingData)
 
-	jsStr, marshallingErr := json.Marshal(resourceSchema)
+	storeSchemaErr := storeSchema(resource, &resourceSchema)
 
-	if marshallingErr != nil {
-		e = marshallingErr
-		return
-	}
-
-	writeToFileErr := persist(resource, jsStr)
-
-	if writeToFileErr != nil {
-		e = writeToFileErr
+	if storeSchemaErr != nil {
+		e = storeSchemaErr
 		return
 	}
 
@@ -80,4 +64,36 @@ func loadResourceFile(resource string) (s []byte, e error) {
 
 func persist(resource string, data []byte) (e error) {
 	e = ioutil.WriteFile(filepath.Join("db", resource + ".json"), data, 0755)
+	return
+}
+
+func loadSchema(resource string) (s models.Schema, e error) {
+	data, loadErr := loadResourceFile(resource)
+
+	if loadErr != nil {
+		e = loadErr
+		return
+	}
+
+	e = json.Unmarshal(data, &s)
+
+	return
+}
+
+func storeSchema(resource string, s *models.Schema) (e error) {
+	jsStr, marshallingErr := json.Marshal(s)
+
+	if marshallingErr != nil {
+		e = marshallingErr
+		return
+	}
+
+	writeToFileErr := persist(resource, jsStr)
+
+	if writeToFileErr != nil {
+		e = writeToFileErr
+		return
+	}
+
+	return
 }
