@@ -12,10 +12,17 @@ import (
 
 func HandleConsoleInput() models.ConsoleArgsResponse {
 	var fileFlag string
+	var user string
+	var secret string
 
 	numbPtr := flag.Int("p", 3000, "listening port")
 	flag.StringVar(&fileFlag, "f", "", "pass a file with json object of your model")
+	flag.StringVar(&user, "u", "", "username used for basic auth (omit this to skip auth)")
+	flag.StringVar(&secret, "s", "", "secret used for basic auth")
 	flag.Parse()
+
+	AuthUser = user
+	AuthSecret = secret
 
 	data, err := ioutil.ReadFile(fileFlag)
 

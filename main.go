@@ -10,8 +10,8 @@ import (
 func main() {
     res := controllers.HandleConsoleInput()
 
-    controllers.AttachHandlers(res.FileName)
+    controllers.AttachHandlers(res.Response.Msg)
 
-    log.Println("Server started on port " + strconv.Itoa(res.Port))
+    log.Println("May I take your order, please? Please put it on the counter number: " + strconv.Itoa(res.Port))
     http.ListenAndServe(":" + strconv.Itoa(res.Port), nil)
 }
