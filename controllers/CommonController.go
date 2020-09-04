@@ -8,7 +8,7 @@ import (
 )
 
 func AttachHandlers(resource string) {
-	getAllHandler := func(resp http.ResponseWriter, req *http.Request) {
+	getAllHandler := func(resp http.ResponseWriter, req *http.Request) (b []byte) {
 		allItems, err := services.GetAll(resource)
 
 		if err != nil {
@@ -16,11 +16,10 @@ func AttachHandlers(resource string) {
 			return
 		}
 
-		resp.Header().Set("Content-Type", "application/json")
-		resp.Write(allItems)
+		return allItems
 	}
 
-	addResource := func(resp http.ResponseWriter, req *http.Request) {
+	addResource := func(resp http.ResponseWriter, req *http.Request) (b []byte) {
 		// TODO: Replace with MaxBytesReader
 		body, err := ioutil.ReadAll(req.Body)
 
@@ -51,17 +50,22 @@ func AttachHandlers(resource string) {
 			return
 		}
 
-		resp.Header().Set("Content-Type", "application/json")
-		resp.Write(r)
+		return r
 	}
 
 	dispatcher := func(resp http.ResponseWriter, req *http.Request) {
+		var resData []byte
+
 		switch req.Method {
 		case http.MethodGet:
-			getAllHandler(resp, req)
+			resData = getAllHandler(resp, req)
 		case http.MethodPost:
-			addResource(resp, req)
+			resData = addResource(resp, req)
 		}
+
+		// Place to attach common headers
+		resp.Header().Set("Content-Type", "application/json")
+		resp.Write(resData)
 	}
 
 	http.HandleFunc("/" + resource, dispatcher)
