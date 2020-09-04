@@ -70,12 +70,14 @@ func AttachHandlers(resource string) {
 	updateResource := func(resp http.ResponseWriter, req *http.Request) (b []byte) {
 		logs.Info("Ohhhh...so you want to update something, right? Alrighty...")
 		return upsertHandler(resp, req, func(id string, resource string, incomingData map[string]interface{}) (r []byte, fe error) {
-			return services.Update(resource, incomingData)
+			return services.Update(req.Header.Get("id"), resource, incomingData)
 		})
 	}
 
 	dispatcher := func(resp http.ResponseWriter, req *http.Request) {
 		var resData []byte
+
+		logs.Info("The URL that you are calling is: " + req.URL.Path)
 
 		if AuthUser != "" {
 			logs.Info("Authentication enabled with user: " + AuthUser + " and secret " + AuthSecret)
@@ -114,6 +116,11 @@ func AttachHandlers(resource string) {
 			}
 		}
 
+		// Used for server's internal purposes to find the resource in update and delete operations.
+		pathSplit := strings.Split(req.URL.Path, "/")
+		logs.Info("Let's see if we have a resource id: " + pathSplit[2])
+		req.Header.Set("id", pathSplit[2])
+
 		switch req.Method {
 		case http.MethodGet:
 			resData = getAllHandler(resp, req)
@@ -128,6 +135,6 @@ func AttachHandlers(resource string) {
 		resp.Write(resData)
 	}
 
-	http.HandleFunc("/" + resource, dispatcher)
+	http.HandleFunc("/" + resource + "/", dispatcher)
 }
 

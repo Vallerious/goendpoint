@@ -2,5 +2,5 @@ package models
 
 type Schema struct {
 	Headers map[string]interface{}
-	Data []interface{}
+	Data []map[string]interface{}
 }

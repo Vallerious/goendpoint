@@ -32,9 +32,22 @@ func Add(resource string, data map[string]interface{}) (r []byte, e error) {
 	})
 }
 
-func Update(resource string, data map[string]interface{}) (r []byte, e error) {
+func Update(id string, resource string, data map[string]interface{}) (r []byte, e error) {
 	return updateDB(resource, data, func(s *models.Schema) {
+		var toBeUpdated *map[string]interface{}
 
+		for _, entry := range s.Data {
+			if entry["id"] == id {
+				toBeUpdated = &entry
+				break
+			}
+		}
+
+		// For safety, let's retain the id to avoid tampering with it.
+		toBeUpdatedId := (*toBeUpdated)["id"]
+
+		*toBeUpdated = data
+		(*toBeUpdated)["id"] = toBeUpdatedId
 	})
 }
 
