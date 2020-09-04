@@ -6,7 +6,7 @@ Clone the repo and run `go build` inside the main folder. The repo also contains
 You can then add the executable to your /usr/bin folder, for Linux and Mac users. Make sure it has Execute rights
 enabled for your user.
 ## Launch
-`./goendpoint -f=test.json -p=3000`
+`./goendpoint -f=test.json -p=3000 -u=user -s=pass`
 where `test.json` is a file with a JSON object, defining the required properties of your schema.
 
 ```
