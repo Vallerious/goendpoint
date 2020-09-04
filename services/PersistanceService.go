@@ -27,6 +27,18 @@ func GetAll(resource string) ([]byte, error) {
 }
 
 func Add(resource string, data map[string]interface{}) (r []byte, e error) {
+	return updateDB(resource, data, func(s *models.Schema) {
+		s.Data = append(s.Data, data)
+	})
+}
+
+func Update(resource string, data map[string]interface{}) (r []byte, e error) {
+	return updateDB(resource, data, func(s *models.Schema) {
+
+	})
+}
+
+func updateDB(resource string, data map[string]interface{}, f func(s *models.Schema)) (r []byte, e error) {
 	resourceSchema, resourceSchemaLoadErr := LoadSchema(resource)
 
 	if resourceSchemaLoadErr != nil {
@@ -34,7 +46,7 @@ func Add(resource string, data map[string]interface{}) (r []byte, e error) {
 		return
 	}
 
-	resourceSchema.Data = append(resourceSchema.Data, data)
+	f(&resourceSchema)
 
 	storeSchemaErr := storeSchema(resource, &resourceSchema)
 

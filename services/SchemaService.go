@@ -20,11 +20,19 @@ func CreateSchema(schemaName string, js map[string]interface{}) error {
 		}
 	}
 
+	filePath := filepath.Join("db", schemaName)
+
+	_, notFoundErr := os.Stat(filePath)
+
+	if notFoundErr == nil {
+		return nil
+	}
+
 	newSchema := models.Schema{Headers: js, Data: make([]interface{}, 0, 0)}
 
 	jsonStr, _ := json.Marshal(newSchema)
 
-	e := ioutil.WriteFile(filepath.Join("db", schemaName), jsonStr, 0755)
+	e := ioutil.WriteFile(filePath, jsonStr, 0755)
 
 	if e != nil {
 		return errors.New("unable to create a file to work with, check your permissions")

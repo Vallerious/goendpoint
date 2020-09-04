@@ -19,7 +19,7 @@ func AttachHandlers(resource string) {
 		return allItems
 	}
 
-	addResource := func(resp http.ResponseWriter, req *http.Request) (b []byte) {
+	upsertHandler := func(resp http.ResponseWriter, req *http.Request, f func(id string, resource string, incomingData map[string]interface{}) (r []byte, fe error)) (b []byte) {
 		// TODO: Replace with MaxBytesReader
 		body, err := ioutil.ReadAll(req.Body)
 
@@ -43,7 +43,7 @@ func AttachHandlers(resource string) {
 			return
 		}
 
-		r, saveToDiskErr := services.Add(resource, incomingData)
+		r, saveToDiskErr := f("", resource, incomingData)
 
 		if saveToDiskErr != nil {
 			http.Error(resp, saveToDiskErr.Error(), http.StatusInternalServerError)
@@ -51,6 +51,18 @@ func AttachHandlers(resource string) {
 		}
 
 		return r
+	}
+
+	addResource := func(resp http.ResponseWriter, req *http.Request) (b []byte) {
+		return upsertHandler(resp, req, func(id string, resource string, incomingData map[string]interface{}) (r []byte, fe error) {
+			return services.Add(resource, incomingData)
+		})
+	}
+
+	updateResource := func(resp http.ResponseWriter, req *http.Request) (b []byte) {
+		return upsertHandler(resp, req, func(id string, resource string, incomingData map[string]interface{}) (r []byte, fe error) {
+			return services.Update(resource, incomingData)
+		})
 	}
 
 	dispatcher := func(resp http.ResponseWriter, req *http.Request) {
@@ -61,6 +73,8 @@ func AttachHandlers(resource string) {
 			resData = getAllHandler(resp, req)
 		case http.MethodPost:
 			resData = addResource(resp, req)
+		case http.MethodPut:
+			resData = updateResource(resp, req)
 		}
 
 		// Place to attach common headers
