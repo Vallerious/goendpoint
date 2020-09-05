@@ -2,10 +2,12 @@ package services
 
 import (
 	"encoding/json"
+	"errors"
 	"goendpoint/models"
+	"goendpoint/utils"
 	"io/ioutil"
 	"path/filepath"
-	"goendpoint/utils"
+	"strconv"
 )
 
 func GetAll(resource string) ([]byte, error) {
@@ -36,10 +38,22 @@ func Update(id string, resource string, data map[string]interface{}) (r []byte, 
 	return updateDB(resource, data, func(s *models.Schema) {
 		var toBeUpdated *map[string]interface{}
 
+		if len(s.Data) == 0 {
+			e = errors.New("record does not exist")
+			return
+		}
+
 		for _, entry := range s.Data {
-			if entry["id"] == id {
-				toBeUpdated = &entry
-				break
+			if entryIdStr, ok := entry["id"].(string); ok {
+				if entryIdStr == id {
+					toBeUpdated = &entry
+					break
+				}
+			} else if entryIdFloat64, ok := entry["id"].(float64); ok {
+				if  flStr, _ := strconv.ParseFloat(id, 64); entryIdFloat64 == flStr {
+					toBeUpdated = &entry
+					break
+				}
 			}
 		}
 

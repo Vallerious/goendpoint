@@ -1,5 +1,7 @@
 # goendpoint
 Mock a JSON server with as little configuration as possible.
+*This project is for educational purposes (me learning Go's syntax and std. library) and should not be used, at least in 
+it's current form.*
 
 ## Installation
 Clone the repo and run `go build` inside the main folder. The repo also contains a build for OSX
@@ -18,3 +20,8 @@ where `test.json` is a file with a JSON object, defining the required properties
 
 The name of the file without the extension (`test`) will be the name of your resource.
 So the rest call would be to `http://localhost:3000/test`.
+
+## Supported methods
+GET - all records
+POST - create record
+PUT - update record

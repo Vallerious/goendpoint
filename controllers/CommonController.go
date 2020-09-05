@@ -118,9 +118,17 @@ func AttachHandlers(resource string) {
 
 		// Used for server's internal purposes to find the resource in update and delete operations.
 		pathSplit := strings.Split(req.URL.Path, "/")
-		logs.Info("Let's see if we have a resource id: " + pathSplit[2])
-		req.Header.Set("id", pathSplit[2])
+		if len(pathSplit) == 3 {
+			logs.Info("Let's see if we have a resource id: " + pathSplit[2])
+			req.Header.Set("id", pathSplit[2])
+		}
 
+		if pathSplit[1] != resource {
+			http.Error(resp, "Page not found", http.StatusNotFound)
+			return
+		}
+
+		logs.Info("The request method is: " + req.Method)
 		switch req.Method {
 		case http.MethodGet:
 			resData = getAllHandler(resp, req)
@@ -135,6 +143,6 @@ func AttachHandlers(resource string) {
 		resp.Write(resData)
 	}
 
-	http.HandleFunc("/" + resource + "/", dispatcher)
+	http.HandleFunc("/", dispatcher)
 }
 

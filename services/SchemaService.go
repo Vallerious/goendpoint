@@ -28,7 +28,7 @@ func CreateSchema(schemaName string, js map[string]interface{}) error {
 		return nil
 	}
 
-	newSchema := models.Schema{Headers: js, Data: make([]interface{}, 0, 0)}
+	newSchema := models.Schema{Headers: js, Data: make([]map[string]interface{}, 0, 0)}
 
 	jsonStr, _ := json.Marshal(newSchema)
 
